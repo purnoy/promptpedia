@@ -7,16 +7,18 @@ import {signIn, signOut, useSession, getProviders} from 'next-auth/react';
 
 const Nav = () => {
   const isUserLoggedIn = true;
+  const [providers, setProviders] = useState(null);
+  useEffect(()=>{
+    const setProv = async()=>{
+      const response = await getProviders();
+      setProviders(response); 
+    }
+    setProv();
+  },[])
   return (
     <nav className="flex-between w-full mb-16 pt-3">
       <Link href="/" className="flex gap-2 flex-center">
-        <Image
-        src={Logo}
-        alt="Promt Logo"
-        height={30}
-        width={30}
-        className="object-contain"
-        />
+        <Image src={Logo} alt="Promt Logo" height={30} width={30} className="object-contain"/>
         <p className="logo_text">Promtpedia</p>
       </Link>
 
@@ -32,22 +34,41 @@ const Nav = () => {
               Sign Out
             </button>
             <Link href="/profile">
-              <Image
-              src={Logo}
-              alt="User"
-              height={37}
-              width={37}
-              className="rounded-full"
-              ></Image>
+              <Image src={Logo} alt="User" height={37} width={37} className="rounded-full"/>
             </Link>
           </div>
         ):
         (
           <>
-          
+            {
+              providers && Object.values(providers).map(provider=>(
+                <button type="button" className="black_btn" onClick={()=>signIn(provider.id)}>
+                  Sign In
+                </button>
+              ))
+            }
           </>
         )
       }
+      </div>
+      <div className="sm:hidden flex relative">
+        {
+          isUserLoggedIn? (
+            <div className="flex">
+              <Image src={Logo} alt="User" height={37} width={37} className="rounded-full"/>
+            </div>
+          ):(
+            <>
+              {
+                 providers && Object.values(providers).map(provider=>(
+                  <button type="button" className="black_btn" onClick={()=>signIn(provider.id)}>
+                    Sign In
+                  </button>
+                ))
+              }
+            </>
+          )
+        }
       </div>
     </nav>
   )
