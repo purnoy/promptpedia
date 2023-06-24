@@ -2,17 +2,20 @@
 import Link from "next/link";
 import Image from "next/image";
 import Logo from "@/public/assets/images/logo.svg";
-import { useEffect, useState } from "react";
+import bogo from "@/public/assets/icons/tick.svg"
+import { useEffect, useState 
+} from "react";
 import {signIn, signOut, useSession, getProviders} from 'next-auth/react';
 
 const Nav = () => {
   const isUserLoggedIn = true;
   const [providers, setProviders] = useState(null);
+  const [toggleDropDown, setToggleDropDown] = useState(false);
   useEffect(()=>{
     const setProv = async()=>{
       const response = await getProviders();
       setProviders(response); 
-    }
+    }  
     setProv();
   },[])
   return (
@@ -22,8 +25,8 @@ const Nav = () => {
         <p className="logo_text">Promtpedia</p>
       </Link>
 
-      {/*Mobile Navigation*/}
-      <div className="sm:flex hidden">
+      {/*Desktop Navigation*/}
+      <div className="md:flex hidden">
       {
         isUserLoggedIn?(
           <div className="flex gap-3 md:gap-5">
@@ -51,17 +54,41 @@ const Nav = () => {
         )
       }
       </div>
-      <div className="sm:hidden flex relative">
+      {/*Mobile Navigation*/}
+      <div className="md:hidden flex relative">
         {
           isUserLoggedIn? (
             <div className="flex">
-              <Image src={Logo} alt="User" height={37} width={37} className="rounded-full"/>
+              <Image src={bogo} alt="User" height={37} width={37} onClick={()=>setToggleDropDown(prev=>(!prev))} className="rounded-full"/>
+              {
+                toggleDropDown && (
+                  <div className="dropdown">
+                    <Link href="/profile" className="dropdown_link"
+                    onClick={()=>setToggleDropDown(false)}>
+                      My Profile
+                    </Link>
+                    <Link href="/create-prompt" className="dropdown_link"
+                    onClick={()=>setToggleDropDown(false)}>
+                      Create Prompt
+                    </Link>
+                    <button type="button"
+                    onClick={()=>{setToggleDropDown(false); signOut();}}
+                    className="mt-5 w-full black_btn"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                )
+              }
+
             </div>
+            
+            
           ):(
             <>
               {
                  providers && Object.values(providers).map(provider=>(
-                  <button type="button" className="black_btn" onClick={()=>signIn(provider.id)}>
+                  <button type="button" className="black_btn" onClick={()=>signIn(provider.id) }>
                     Sign In
                   </button>
                 ))
